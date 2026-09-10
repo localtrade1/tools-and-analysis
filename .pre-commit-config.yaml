@@ -1,14 +1,47 @@
+# Hook sources and revisions were corrected so that `pre-commit install` can
+# actually resolve every repository:
+#
+#   * flake8 moved from GitLab to GitHub. The old
+#     `https://gitlab.com/pycqa/flake8` project is retired, so cloning it fails
+#     and the hook never runs -- the lint gate silently did not exist.
+#   * `github.com/ambv/black` is a legacy redirect to `psf/black`. The redirect
+#     still resolves today, but pinning the canonical location removes the
+#     dependency on GitHub continuing to serve it.
+#   * `rev` values are the current stable tags. isort 5.11.5 predates the
+#     Python 3.11/3.12 handling in later releases.
+#
+# `default_language_version` replaces the per-hook `language_version` so every
+# Python hook agrees on one interpreter.
+default_language_version:
+  python: python3.11
+
 repos:
-  - repo: https://github.com/pycqa/isort
-    rev: 5.11.5
+  - repo: https://github.com/PyCQA/isort
+    rev: 6.0.1
     hooks:
       - id: isort
-  - repo: https://github.com/ambv/black
-    rev: 22.3.0
+        args: ["--profile", "black"]  # Keep isort from fighting black over import wrapping.
+
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
     hooks:
       - id: black
-        language_version: python3.11
-  - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.9.2
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.1.2
     hooks:
       - id: flake8
+        # E203 conflicts with black's slice formatting; 88 is black's line length.
+        args: ["--max-line-length=88", "--extend-ignore=E203"]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      # Blocks the credential file and any other private key from being
+      # committed by accident. client/credentials.yaml holds a plaintext
+      # password, so a .gitignore entry alone is a single point of failure.
+      - id: detect-private-key
+      - id: check-added-large-files
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
