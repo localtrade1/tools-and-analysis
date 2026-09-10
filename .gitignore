@@ -1,4 +1,29 @@
-poetry.lock
-pyproject.toml
+# Build inputs are tracked, not ignored. `poetry.lock` and `pyproject.toml` were
+# previously listed here, which meant the repository carried no dependency
+# manifest at all: `requirements.txt` was the only checked-in pin set, nothing
+# recorded the declared (as opposed to resolved) dependencies, and a fresh clone
+# could not reproduce the environment the notebooks were written against.
+# Commit both files instead.
+
+# Credentials: never tracked. See client/kalshi_client.py for the expected
+# format, and prefer KALSHI_CREDENTIALS_PATH to keep the file outside the
+# checkout entirely.
 client/credentials.yaml
-*.pyc
+.env
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
